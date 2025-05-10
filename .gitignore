@@ -1,0 +1,17 @@
+/.bin/
+/ctemplates.jar
+/personal.code-workspace
+src/org/congocc/templates/core/parser/CTemplatesParser.java
+src/org/congocc/templates/core/parser/CTemplatesLexer.java
+src/org/congocc/templates/core/parser/Node.java
+src/org/congocc/templates/core/parser/Token.java
+src/org/congocc/templates/core/parser/InvalidToken.java
+src/org/congocc/templates/core/parser/ParseException.java
+src/org/congocc/templates/core/parser/NonTerminalCall.java
+src/org/congocc/templates/core/parser/TokenSource.java
+src/org/congocc/templates/core/nodes/generated
+*.class
+*~
+.settings/*
+/build/*
+/build/
