@@ -1,0 +1,71 @@
+<project name="congo-templates" default="jar" basedir=".">
+
+    <tstamp>
+        <format property="timestamp" pattern="yyyy-MM-dd HH:mm:ss" />
+    </tstamp>
+
+    <target name="init">
+
+	<uptodate property="parser.uptodate" targetfile="src/org/congocc/templates/core/parser/CTemplatesParser.java">
+    <srcfiles dir="src/parser" includes="*.ccc"/>
+	</uptodate>
+	
+	<path id="class.path">
+      <fileset dir="libs">
+          <include name="*.jar" />
+      </fileset>
+    </path>
+  </target>
+
+  <target name="parser-gen" depends="init" unless="parser.uptodate">
+  	<java jar="bootstrap/congocc.jar" fork="true" failonerror="true">
+        	<assertions><enable/></assertions>
+ 	   <arg value="src/parser/CTemplates.ccc"/>
+ 	</java>
+  </target>
+  
+  <target name="compile" depends="parser-gen">
+  	<mkdir dir="build"/>
+    <javac srcdir="src" 
+ 	       destdir="build"
+ 	       deprecation="off"
+ 	       debug="on"
+ 	       optimize="off"
+         failonerror="true"
+         fork="true"
+         release="8"
+    	   includeantruntime="false"
+    >
+      <classpath refid="class.path"/>
+    </javac>
+  </target>
+  
+  <target name="jar" depends="compile">
+     <jar jarfile="ctemplates.jar" basedir="build" compress="true" excludes="freemarker3/testcase/**">
+        <manifest>
+           <!--attribute name="Main-Class" value="org.congocc.templates.core.CommandLine"/-->
+           <attribute name="Built-By" value="${user.name}"/>
+           <attribute name="Build-Date"   value="${timestamp}"/>
+        </manifest>
+     </jar>
+  </target>
+  
+  
+  <target name="clean">
+     <delete file="src/org/congocc/templates/core/parser/CTemplatesParser.java"/>
+     <delete file="src/org/congocc/templates/core/parser/CTemplatesLexer.java"/>
+     <delete file="src/org/congocc/templates/core/parser/TokenSource.java"/>
+     <delete file="src/org/congocc/templates/core/parser/InvalidToken.java"/>
+     <delete file="src/org/congocc/templates/core/parser/Token.java"/>
+     <delete file="src/org/congocc/templates/core/parser/Node.java"/>
+     <delete file="src/org/congocc/templates/core/parser/NonTerminalCall.java"/>
+     <delete file="src/org/congocc/templates/core/parser/ParseException.java"/>
+     <delete dir="build"/>
+     <delete dir="src/org/congocc/templates/core/nodes/generated"/>
+     <delete file="ctemplates.jar"/>
+     <!--delete>
+      <fileset dir="src/org/congocc/templates/testcase/reference" includes="*.out"/>
+    </delete-->     
+  </target>
+
+</project>
