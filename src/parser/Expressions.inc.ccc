@@ -9,7 +9,6 @@
 ;
 
 INJECT Expression :
-   import org.congocc.templates.core.variables.*;
    import org.congocc.templates.core.Environment;
    import org.congocc.templates.core.variables.InvalidReferenceException;
    import org.congocc.templates.TemplateException;
@@ -47,7 +46,9 @@ INJECT Expression :
         return referent.toString();
     }
     
-    Expression _deepClone(String name, Expression subst);
+    default Expression _deepClone(String name, Expression subst) {
+        return this;
+    }
     
     default Expression deepClone(String name, Expression subst) {
         Expression clone = _deepClone(name, subst);
@@ -964,10 +965,6 @@ INJECT BuiltinVariable :
            case "error" : return env.getCurrentRecoveredErrorMessage();
         }
         throw new TemplateException("Invalid built-in variable: " + this, env);
-    }
-
-    public Expression _deepClone(String name, Expression subst) {
-        return this;
     }
 
     static class VarsHash implements TemplateHashModel {

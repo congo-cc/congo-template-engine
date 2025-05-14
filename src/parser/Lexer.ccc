@@ -496,10 +496,6 @@ INJECT NullLiteral :
     public Object evaluate(Environment env) {
         return JAVA_NULL;
     }
-
-    public Expression _deepClone(String name, Expression subst) {
-    	return this;
-    }
 }
 
 INJECT BooleanLiteral :
@@ -513,10 +509,6 @@ INJECT BooleanLiteral :
 
     public Boolean evaluate(Environment env) {
         return isTrue(env);
-    }
-
-    public Expression _deepClone(String name, Expression subst) {
-        return this;
     }
 }
 
@@ -542,11 +534,6 @@ INJECT NumberLiteral :
         value = template != null ? 
                 template.getArithmeticEngine().toNumber(s) :
                 new BigDecimal(s);
-    }
-
-
-    public Expression _deepClone(String name, Expression subst) {
-        return this;
     }
 }
 
@@ -623,9 +610,5 @@ INJECT StringLiteral :
 
     public boolean isAssignableTo() {
         return true;
-    }
-
-    public Expression _deepClone(String name, Expression subst) {
-        return this;
     }
 }
