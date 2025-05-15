@@ -108,8 +108,6 @@ public final class Environment extends Configurable implements Scope {
 
     private Object lastReturnValue;
 
-    private WrappedNode currentVisitorNode;
-
     private List<Scope> nodeNamespaces;
 
     // Things we keep track of for the fallback mechanism.
@@ -359,87 +357,6 @@ public final class Environment extends Configurable implements Scope {
         }
     }
 
-    /**
-     * "Visit" A WrappedNode
-     */
-    public void render(WrappedNode node, List<Scope> namespaces) throws IOException {
-        if (nodeNamespaces == null) {
-            List<Scope> ss = new ArrayList<>();
-            ss.add(getCurrentNamespace());
-            nodeNamespaces = ss;
-        }
-        int prevNodeNamespaceIndex = this.nodeNamespaceIndex;
-        String prevNodeName = this.currentNodeName;
-        String prevNodeNS = this.currentNodeNS;
-        List<Scope> prevNodeNamespaces = nodeNamespaces;
-        WrappedNode prevVisitorNode = currentVisitorNode;
-        currentVisitorNode = node;
-        if (namespaces != null) {
-            this.nodeNamespaces = namespaces;
-        }
-        try {
-            Macro macro = getNodeProcessor(node);
-            if (macro !=null) {
-                render(macro, (ArgsList) null, null, null);
-            } else {
-                String nodeType = node.getNodeType();
-                if (nodeType != null) {
-                    // If the node's type is 'text', we just output it.
-                    if (nodeType.equals("text")) {
-                        out.write(nodeType.toString());
-                    } else if (nodeType.equals("document")) {
-                        process(node, namespaces);
-                    }
-                    // We complain here, unless the node's type is 'pi', or
-                    // "comment" or "document_type", in which case
-                    // we just ignore it.
-                    else if (!nodeType.equals("pi")
-                            && !nodeType.equals("comment")
-                            && !nodeType.equals("document_type")) {
-                        String nsBit = "";
-                        String ns = node.getNodeNamespace();
-                        if (ns != null) {
-                            if (ns.length() > 0) {
-                                nsBit = " and namespace " + ns;
-                            } else {
-                                nsBit = " and no namespace";
-                            }
-                        }
-                        throw new TemplateException(
-                                "No handler defined for node named "
-                                        + node.getNodeName()
-                                        + nsBit
-                                        + ", and there is no fallback handler called @"
-                                        + nodeType + " either.",
-                                this);
-                    }
-                } else {
-                    String nsBit = "";
-                    String ns = node.getNodeNamespace();
-                    if (ns != null) {
-                        if (ns.length() > 0) {
-                            nsBit = " and namespace " + ns;
-                        } else {
-                            nsBit = " and no namespace";
-                        }
-                    }
-                    throw new TemplateException(
-                            "No handler defined for node with name "
-                                    + node.getNodeName()
-                                    + nsBit
-                                    + ", and there is no macro or transform called @default either.",
-                            this);
-                }
-            }
-        } finally {
-            this.currentVisitorNode = prevVisitorNode;
-            this.nodeNamespaceIndex = prevNodeNamespaceIndex;
-            this.currentNodeName = prevNodeName;
-            this.currentNodeNS = prevNodeNS;
-            this.nodeNamespaces = prevNodeNamespaces;
-        }
-    }
-
     public <T> T runInScope(Scope scope, TemplateRunnable<T> runnable) throws IOException {
         Scope currentScope = this.currentScope;
         this.currentScope = scope;
@@ -448,14 +365,6 @@ public final class Environment extends Configurable implements Scope {
         } finally {
             this.currentScope = currentScope;
         }
-    }
-
-    public void fallback() throws IOException {
-        Object macroOrTransform = getNodeProcessor(currentNodeName,
-                currentNodeNS, nodeNamespaceIndex);
-        if (macroOrTransform instanceof Macro) {
-            render((Macro) macroOrTransform, (ArgsList) null, null, null);
-        } 
     }
 
     /**
@@ -517,25 +426,6 @@ public final class Environment extends Configurable implements Scope {
 
     public MacroContext getMacroContext(Macro macro) {
         return macroContextLookup.get(macro);
-    }
-
-    public void process(WrappedNode node, List<Scope> namespaces) throws IOException {
-        if (node == null) {
-            node = this.getCurrentVisitorNode();
-            if (node == null) {
-                throw new EvaluationException(
-                        "The target node of recursion is missing or null.");
-            }
-        }
-        List<WrappedNode> children = node.getChildNodes();
-        if (children == null)
-            return;
-        for (int i = 0; i < children.size(); i++) {
-            WrappedNode child = (WrappedNode) children.get(i);
-            if (child != null) {
-                render(child, namespaces);
-            }
-        }
     }
 
     public MacroContext getCurrentMacroContext() {
@@ -1062,81 +952,6 @@ public final class Environment extends Configurable implements Scope {
 
     private void popElement() {
         elementStack.remove(elementStack.size() - 1);
-    }
-
-    public WrappedNode getCurrentVisitorNode() {
-        return currentVisitorNode;
-    }
-
-    /**
-     * sets WrappedNode as the current visitor node.
-     * <tt>.current_node</tt>
-     */
-    public void setCurrentVisitorNode(WrappedNode node) {
-        currentVisitorNode = node;
-    }
-
-    Macro getNodeProcessor(WrappedNode node) {
-        String nodeName = node.getNodeName();
-        if (nodeName == null) {
-            throw new TemplateException("Node name is null.", this);
-        }
-        Macro result = getNodeProcessor(nodeName, node.getNodeNamespace(), 0);
-        if (result == null) {
-            String type = node.getNodeType();
-            if (type != null) {
-                result = getNodeProcessor("@" + type, null, 0);
-            }
-            if (result == null) {
-                result = getNodeProcessor("@default", null, 0);
-            }
-        }
-        return result;
-    }
-
-    private Macro getNodeProcessor(final String nodeName, final String nsURI, int startIndex) {
-        Macro result = null;
-        int i;
-        for (i = startIndex; i < nodeNamespaces.size(); i++) {
-            Scope ns = nodeNamespaces.get(i);
-            result = getNodeProcessor(ns, nodeName, nsURI);
-            if (result != null)
-                break;
-        }
-        if (result != null) {
-            this.nodeNamespaceIndex = i + 1;
-            this.currentNodeName = nodeName;
-            this.currentNodeNS = nsURI;
-        }
-        return result;
-    }
-
-    private Macro getNodeProcessor(Scope ns, String localName, String nsURI) {
-        Object value = null;
-        if (nsURI == null) {
-            value = ns.get(localName);
-            return (value instanceof Macro) ? (Macro) value : null;
-        } 
-        Template template = ns.getTemplate();
-        String prefix = template.getPrefixForNamespace(nsURI);
-        if (prefix == null) {
-            // The other template cannot handle this node
-            // since it has no prefix registered for the namespace
-            return null;
-        }
-        if (prefix.length() > 0) {
-            value = ns.get(prefix + ":" + localName);
-        } 
-        else if (nsURI.length() == 0) {
-            value = ns.get(Template.NO_NS_PREFIX + ":" + localName);
-        }
-        else if (nsURI.equals(template.getDefaultNS())) {
-            value = ns.get(Template.DEFAULT_NAMESPACE_PREFIX + ":" + localName);
-        }
-        else if (value == null) {
-            value = ns.get(localName);
-        }
-        return (value instanceof Macro) ? (Macro) value : null;
     }
 
     /**

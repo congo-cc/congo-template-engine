@@ -955,8 +955,6 @@ INJECT BuiltinVariable :
            case "vars" : return new VarsHash(env);
            case "locale" : return env.getLocale().toString();
            case "lang" : return env.getLocale().getLanguage();
-           case "current_node" :
-           case "node" : return env.getCurrentVisitorNode();
            case "pass" : return Macro.DO_NOTHING_MACRO;
            case "name" : return env.getTemplate().getName(); 
            case "version" : return Configuration.getVersionNumber();
@@ -1120,7 +1118,6 @@ INJECT BuiltInExpression :
         knownBuiltins.put("is_null", typeChecks);
         knownBuiltins.put("is_number", typeChecks);
         knownBuiltins.put("is_macro", typeChecks);
-        knownBuiltins.put("is_node", typeChecks);
         knownBuiltins.put("is_sequence", typeChecks);
         knownBuiltins.put("is_string", typeChecks);
         knownBuiltins.put("is_transform", typeChecks);
@@ -1139,13 +1136,6 @@ INJECT BuiltInExpression :
         knownBuiltins.put("ends_with", new StringFunctions.EndsWith());
         knownBuiltins.put("word_list", new StringFunctions.WordList());
         knownBuiltins.put("url", new StringFunctions.Url());
-        knownBuiltins.put("parent", new NodeFunctions.Parent());
-        knownBuiltins.put("children", new NodeFunctions.Children());
-        knownBuiltins.put("node_name", new NodeFunctions.NodeName());
-        knownBuiltins.put("node_type", new NodeFunctions.NodeType());
-        knownBuiltins.put("node_namespace", new NodeFunctions.NodeNamespace());
-        knownBuiltins.put("root", new NodeFunctions.Root());
-        knownBuiltins.put("ancestors", new NodeFunctions.Ancestors());
         knownBuiltins.put("first", new SequenceFunctions.First());
         knownBuiltins.put("last", new SequenceFunctions.Last());
         knownBuiltins.put("reverse", new SequenceFunctions.Reverse());

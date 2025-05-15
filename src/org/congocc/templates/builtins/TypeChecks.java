@@ -52,9 +52,6 @@ public class TypeChecks extends ExpressionEvaluatingBuiltIn {
 		else if (builtInName == "is_method") {
 			result = value instanceof VarArgsFunction;
 		}
-		else if (builtInName == "is_node") {
-			result = value instanceof WrappedNode;
-		}
 		else if (builtInName == "is_null") {
 			result = value == JAVA_NULL;
 		}

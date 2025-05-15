@@ -12,7 +12,6 @@ import org.congocc.templates.core.nodes.generated.ImportDeclaration;
 import org.congocc.templates.core.nodes.generated.Macro;
 import org.congocc.templates.core.nodes.generated.TemplateElement;
 import org.congocc.templates.core.nodes.generated.TemplateHeaderElement;
-import org.congocc.templates.core.variables.WrappedNode;
 import org.congocc.templates.core.parser.*;
 
 /**
@@ -208,32 +207,6 @@ public class Template extends Configurable {
         createProcessingEnvironment(rootMap, out).process();
     }
 
-    /**
-     * Processes the template, using data from the root map object, and outputs
-     * the resulting text to the supplied writer, using the supplied
-     * object wrapper to convert map elements to template models.
-     * @param rootMap the root node of the data model.  If null, an
-     * empty data model is used. Can be any object that the effective object
-     * wrapper can turn into a <tt>WrappedHash</tt> Basically, simple and
-     * beans wrapper can turn <tt>java.util.Map</tt> objects into hashes.
-     * Naturally, you can pass any object directly implementing
-     * <tt>WrappedHash</tt> as well.
-     * @param out the writer to output the text to.
-     * @param rootNode The root node for recursive processing, this may be null.
-     * 
-     * @throws TemplateException if an exception occurs during template processing
-     * @throws IOException if an I/O exception occurs during writing to the writer.
-     */
-    public void process(Map<String,Object> rootMap, Writer out, WrappedNode rootNode)
-    throws IOException
-    {
-        Environment env = createProcessingEnvironment(rootMap, out);
-        if (rootNode != null) {
-            env.setCurrentVisitorNode(rootNode);
-        }
-        env.process();
-    }
-    
    /**
     * Creates a {@link org.congocc.templates.core.Environment Environment} object,
     * using this template, the data model provided as the root map object, and

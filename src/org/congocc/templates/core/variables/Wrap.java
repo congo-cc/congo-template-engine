@@ -9,7 +9,6 @@ import org.congocc.templates.TemplateDateModel;
 import org.congocc.templates.TemplateException;
 import org.congocc.templates.TemplateScalarModel;
 import org.congocc.templates.TemplateSequenceModel;
-import org.congocc.templates.xml.WrappedDomNode;
 
 public class Wrap {
     /**
@@ -192,9 +191,6 @@ public class Wrap {
         }
         if (object instanceof ResourceBundle) {
             return new ResourceBundleWrapper((ResourceBundle) object);
-        }
-        if (object instanceof org.w3c.dom.Node) {
-            return WrappedDomNode.wrapNode((org.w3c.dom.Node)object);
         }
         return object;
     }
