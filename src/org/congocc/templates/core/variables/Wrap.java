@@ -7,7 +7,6 @@ import org.congocc.templates.core.nodes.generated.Expression;
 import org.congocc.templates.TemplateBooleanModel;
 import org.congocc.templates.TemplateDateModel;
 import org.congocc.templates.TemplateException;
-import org.congocc.templates.TemplateScalarModel;
 import org.congocc.templates.TemplateSequenceModel;
 
 public class Wrap {
@@ -116,9 +115,6 @@ public class Wrap {
     }
 
     public static String asString(Object obj) {
-        if (obj instanceof TemplateScalarModel) {
-            return ((TemplateScalarModel) obj).getAsString();
-        }
         return obj.toString();
     }
 
