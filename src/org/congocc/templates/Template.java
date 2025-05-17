@@ -70,7 +70,7 @@ public class Template extends Configurable {
      */
     protected Template(String name, Configuration cfg)
     {
-        super(cfg != null ? cfg : Configuration.getDefaultConfiguration());
+        super(cfg);
         this.name = name;
     }
 

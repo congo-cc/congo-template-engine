@@ -602,7 +602,6 @@ IncludeInstruction :
 INJECT IncludeInstruction :
     import java.io.IOException;
     import java.io.IOException;
-    import org.congocc.templates.cache.TemplateCache;
     import org.congocc.templates.*;
     import org.congocc.templates.utility.StringUtil;
     import org.congocc.templates.core.Environment;
@@ -659,7 +658,7 @@ INJECT IncludeInstruction :
     	}
         try {
             //REVISIT
-            templateNameString = TemplateCache.getFullTemplatePath(env, templatePath, templateNameString);
+//            templateNameString = TemplateCache.getFullTemplatePath(env, templatePath, templateNameString);
             includedTemplate = env.getTemplateForInclusion(templateNameString, encoding, parse);
         }
         catch (ParseException pe) {

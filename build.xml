@@ -4,17 +4,12 @@
         <format property="timestamp" pattern="yyyy-MM-dd HH:mm:ss" />
     </tstamp>
 
-    <target name="init">
+  <target name="init">
 
-	<uptodate property="parser.uptodate" targetfile="src/org/congocc/templates/core/parser/CTemplatesParser.java">
-    <srcfiles dir="src/parser" includes="*.ccc"/>
-	</uptodate>
+	 <uptodate property="parser.uptodate" targetfile="src/org/congocc/templates/core/parser/CTemplatesParser.java">
+     <srcfiles dir="src/parser" includes="*.ccc"/>
+	 </uptodate>
 	
-	<path id="class.path">
-      <fileset dir="libs">
-          <include name="*.jar" />
-      </fileset>
-    </path>
   </target>
 
   <target name="parser-gen" depends="init" unless="parser.uptodate">

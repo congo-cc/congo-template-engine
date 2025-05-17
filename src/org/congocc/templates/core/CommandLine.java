@@ -32,7 +32,7 @@ public class CommandLine {
 	public static void processTemplate(String filename) throws IOException {
 		File file = new File(filename).getCanonicalFile();
 		Configuration conf = new Configuration();
-		conf.setDirectoryForTemplateLoading(file.getParentFile());
+		conf.setDirectoryForTemplateLoading(file.getParentFile().toString());
 		Template template = conf.getTemplate(file.getName());
 		Writer out = new OutputStreamWriter(System.out);
 		template.process(new HashMap<String, Object>(), out);

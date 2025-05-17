@@ -1,11 +1,12 @@
 package org.congocc.templates;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
+import java.nio.file.Path;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 
-import org.congocc.templates.cache.*;
 import org.congocc.templates.core.Configurable;
 import org.congocc.templates.core.Environment;
 import org.congocc.templates.core.variables.WrappedVariable;
@@ -26,22 +27,13 @@ import static org.congocc.templates.core.variables.Wrap.*;
  * and caching templates. You can plug in a replacement
  * template loading mechanism by using the {@link #setTemplateLoader(TemplateLoader)}
  * method.
- *
- * This object is <em>not synchronized</em>. Thus, the settings must not be changed
- * after you have started to access the object from multiple threads. If you use multiple
- * threads, set everything directly after you have instantiated the <code>Configuration</code>
- * object, and don't change the settings anymore.
- *
- * @author <a href="mailto:jon@revusky.com">Jonathan Revusky</a>
- * @author Attila Szegedi
  */
 
-@SuppressWarnings("deprecation")
+//@SuppressWarnings("deprecation")
 public class Configuration extends Configurable {
 
     private static Configuration defaultConfig = new Configuration();
     private boolean localizedLookup = true, legacySyntax;
-    private TemplateCache cache;
     private HashMap<String, Object> variables = new HashMap<String, Object>();
     private HashMap<String, String> encodingMap = new HashMap<String, String>();
     private Map<String, String> autoImportMap = new HashMap<String, String>();
@@ -49,23 +41,15 @@ public class Configuration extends Configurable {
     private ArrayList<String> autoIncludes = new ArrayList<String>();
     private String defaultEncoding = "UTF-8";
     private boolean tolerateParsingProblems = false;
+
+    private Class<?> classForTemplateLoading;
+    private String pathPrefix = "/";
+    private Path directoryForTemplateLoading;
+
     public Configuration() {
-        cache = new TemplateCache();
-        cache.setConfiguration(this);
-        cache.setDelay(5000);
         loadBuiltInSharedVariables();
     }
 
-    public void setTemplateCache(TemplateCache cache) {
-    	this.cache = cache;
-    	cache.setConfiguration(this);
-    	cache.setDelay(5000);
-    }
-    
-    public TemplateCache getTemplateCache() {
-    	return cache;
-    }
-    
     private void loadBuiltInSharedVariables() {
         variables.put("compress", StandardCompress.INSTANCE);
         variables.put("html_escape", new HtmlEscape());
@@ -73,129 +57,23 @@ public class Configuration extends Configurable {
     }
 
     /**
-     * Returns the default (singleton) Configuration object. Note that you can
-     * create as many separate configurations as you wish; this global instance
-     * is provided for convenience, or when you have no reason to use a separate
-     * instance.
-     * 
-     * @deprecated The usage of the static singleton (the "default")
-     * {@link Configuration} instance can easily cause erroneous, unpredictable
-     * behavior. This is because multiple independent software components may use
-     * the template engine internally inside the same application, so they will interfere
-     * because of the common {@link Configuration} instance. Each such component
-     * should use its own private {@link Configuration} object instead, that it
-     * typically creates with <code>new Configuration()</code> when the component
-     * is initialized.
-     */
-    static public Configuration getDefaultConfiguration() {
-        return defaultConfig;
-    }
-    
-    /**
      * 
      * @return the {@link Configuration} object that is being used
      * in this template processing thread.
      */
-    
     static public Configuration getCurrentConfiguration() {
     	Environment env = Environment.getCurrentEnvironment();
     	return env != null ? env.getConfiguration() : defaultConfig;
     }
-    
   
-    /**
-     * Sets the Configuration object that will be retrieved from future calls
-     * to {@link #getDefaultConfiguration()}.
-     * 
-     * @deprecated Using the "default" {@link Configuration} instance can
-     * easily lead to erroneous, unpredictable behaviour.
-     * See more {@link Configuration#getDefaultConfiguration() here...}.
-     */
-    static public void setDefaultConfiguration(Configuration config) {
-        defaultConfig = config;
-    }
-    
-    /**
-     * Sets a template loader that is used to look up and load templates.
-     * By providing your own template loader, you can customize the way
-     * templates are loaded. Several convenience methods in this class already
-     * allow you to install commonly used loaders:
-     * {@link #setClassForTemplateLoading(Class, String)}, 
-     * {@link #setDirectoryForTemplateLoading(File)}, and
-     * {@link #setServletContextForTemplateLoading(Object, String)}. By default,
-     * a multi-loader is used that first tries to load a template from the file
-     * in the current directory, then from a resource on the classpath.
-     */
-    public synchronized void setTemplateLoader(TemplateLoader loader) {
-        createTemplateCache(loader, cache.getCacheStorage());
-    }
-    
-    private void setTemplateLoaderNoCheck(TemplateLoader loader) {
-        createTemplateCache(loader, cache.getCacheStorage());
-    }
-
-    private void createTemplateCache(TemplateLoader loader, CacheStorage storage)
-    {
-        TemplateCache oldCache = cache;
-        cache = new TemplateCache(loader, storage);
-        cache.setDelay(oldCache.getDelay());
-        cache.setConfiguration(this);
-        cache.setLocalizedLookup(localizedLookup);
-    }
-    /**
-     * @return the template loader that is used to look up and load templates.
-     * @see #setTemplateLoader
-     */
-    public synchronized TemplateLoader getTemplateLoader()
-    {
-        return cache.getTemplateLoader();
-    }
-
-    public synchronized void setCacheStorage(CacheStorage storage) {
-        createTemplateCache(cache.getTemplateLoader(), storage);
-    }
-    
     /**
      * Set the explicit directory from which to load templates.
      */
-    public void setDirectoryForTemplateLoading(File dir) throws IOException {
-        TemplateLoader tl = getTemplateLoader();
-        if (tl instanceof FileTemplateLoader) {
-            String path = ((FileTemplateLoader) tl).baseDir.getCanonicalPath();
-            if (path.equals(dir.getCanonicalPath()))
-                return;
-        }
-        setTemplateLoaderNoCheck(new FileTemplateLoader(dir));
-    }
-
-    /**
-     * Sets the servlet context from which to load templates
-     * @param sctxt the ServletContext object. Note that the type is <code>Object</code>
-     *        to prevent class loading errors when a user who uses the template engine not for
-     *        servlets has no javax.servlet in the CLASSPATH.
-     * @param path the path relative to the ServletContext.
-     * If this path is absolute, it is taken to be relative
-     * to the server's URL, i.e. http://myserver.com/
-     * and if the path is relative, it is taken to be 
-     * relative to the web app context, i.e.
-     * http://myserver.context.com/mywebappcontext/
-     */
-    public void setServletContextForTemplateLoading(Object sctxt, String path) {
-        try {
-            if (path == null) {
-                setTemplateLoaderNoCheck( (TemplateLoader)
-                        Class.forName("org.congocc.templates.cache.WebappTemplateLoader")
-                            .getConstructor(new Class[]{Class.forName("javax.servlet.ServletContext")})
-                                    .newInstance(new Object[]{sctxt}) );
-            }
-            else {
-                setTemplateLoaderNoCheck( (TemplateLoader)
-                        Class.forName("org.congocc.templates.cache.WebappTemplateLoader")
-                            .getConstructor(new Class[]{Class.forName("javax.servlet.ServletContext"), String.class})
-                                    .newInstance(new Object[]{sctxt, path}) );
-            }
-        } catch (Exception exc) {
-            throw new RuntimeException("Internal template engine error: " + exc);
+    public void setDirectoryForTemplateLoading(String dir) throws IOException {
+        directoryForTemplateLoading = FileSystems.getDefault().getPath(dir);
+        if (!Files.isDirectory(directoryForTemplateLoading)) {
+            directoryForTemplateLoading = null;
+//            throw new IllegalArgumentException("Directory " + dir + " is not a directory.");
         }
     }
 
@@ -203,19 +81,12 @@ public class Configuration extends Configurable {
      * Sets a class relative to which we do the 
      * Class.getResource() call to load templates.
      */
-    public void setClassForTemplateLoading(Class clazz, String pathPrefix) {
-        setTemplateLoaderNoCheck(new ClassTemplateLoader(clazz, pathPrefix));
+    public void setClassForTemplateLoading(Class<?> clazz, String pathPrefix) {
+        this.classForTemplateLoading = clazz;
+        if (pathPrefix.startsWith("/")) pathPrefix = pathPrefix.substring(1);
+        this.pathPrefix = pathPrefix;
     }
 
-    /**
-     * Set the time in seconds that must elapse before checking whether there is a newer
-     * version of a template file.
-     * This method is thread-safe and can be called while the engine works.
-     */
-    public void setTemplateUpdateDelay(int delay) {
-        cache.setDelay(1000L * delay);
-    }
-    
     public void setStrictVariableDefinition(boolean b) {
     	this.legacySyntax = !b;
     }
@@ -280,7 +151,23 @@ public class Configuration extends Configurable {
      * @throws ParseException (extends <code>IOException</code>) if the template is syntactically bad.
      */
     public Template getTemplate(String name, Locale locale, String encoding, boolean parse) throws IOException {
-        Template result = cache.getTemplate(name, locale, encoding, parse);
+        Template result = null;
+        String content = null;
+        Path path = null;
+        if (directoryForTemplateLoading != null) {
+            path = directoryForTemplateLoading.resolve(name);
+            byte[] bb = Files.readAllBytes(path);
+            content = new String(bb);
+            result = new Template(name, content, this, "UTF-8");
+        }
+        if (content == null) {
+            java.io.InputStream is = classForTemplateLoading.getResourceAsStream("/" + pathPrefix + "/" + name);
+            if (is == null) {
+                throw new IllegalArgumentException(pathPrefix + "/" + name);
+            }
+            java.io.InputStreamReader reader = new java.io.InputStreamReader(is);
+            result = new Template(name, reader, this);
+        }
         if (result == null) {
             throw new FileNotFoundException("Template " + name + " not found.");
         }
@@ -417,24 +304,21 @@ public class Configuration extends Configurable {
      * This method is thread-safe and can be called while the engine works.
      */
     public void clearTemplateCache() {
-        cache.clear();
+        // TODO
     }
     
     /**
      * Returns if localized template lookup is enabled or not.
-     * This method is thread-safe and can be called while the engine works.
      */
     public boolean getLocalizedLookup() {
-        return cache.getLocalizedLookup();
+        return this.localizedLookup;
     }
     
     /**
      * Enables/disables localized template lookup. Enabled by default.
-     * This method is thread-safe and can be called while the engine works.
      */
     public void setLocalizedLookup(boolean localizedLookup) {
         this.localizedLookup = localizedLookup;
-        cache.setLocalizedLookup(localizedLookup);
     }
     
     /**
@@ -504,39 +388,7 @@ public class Configuration extends Configurable {
             } else if ("legacy_syntax".equalsIgnoreCase(key)) {
                 setStrictVariableDefinition(!StringUtil.getYesNo(value));
             }
-            else if ("cache_storage".equalsIgnoreCase(key)) {
-                if (value.indexOf('.') == -1) {
-                    int strongSize = 0;
-                    int softSize = 0;
-                    Map<String,String> map = StringUtil.parseNameValuePairList(
-                            value, String.valueOf(Integer.MAX_VALUE));
-                    for (Map.Entry<String, String> ent : map.entrySet()) {
-                        String pname = ent.getKey();
-                        int pvalue;
-                        try {
-                            pvalue = Integer.parseInt(ent.getValue());
-                        } catch (NumberFormatException e) {
-                            throw invalidSettingValueException(key, value);
-                        }
-                        if ("soft".equalsIgnoreCase(pname)) {
-                            softSize = pvalue;
-                        } else if ("strong".equalsIgnoreCase(pname)) {
-                            strongSize = pvalue;
-                        } else {
-                            throw invalidSettingValueException(key, value);
-                        }
-                    }
-                    if (softSize == 0 && strongSize == 0) {
-                        throw invalidSettingValueException(key, value);
-                    }
-                    setCacheStorage(new MruCacheStorage(strongSize, softSize));
-                } else {
-                    setCacheStorage((CacheStorage) Class.forName(value)
-                            .newInstance());
-                }
-            } else if ("template_update_delay".equalsIgnoreCase(key)) {
-                setTemplateUpdateDelay(Integer.parseInt(value));
-            } else if ("auto_include".equalsIgnoreCase(key)) {
+            else if ("auto_include".equalsIgnoreCase(key)) {
                 setAutoIncludes(new SettingStringParser(value).parseAsList());
             } else if ("auto_import".equalsIgnoreCase(key)) {
                 setAutoImports(new SettingStringParser(value).parseAsImportList());
