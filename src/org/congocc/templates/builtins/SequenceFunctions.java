@@ -4,7 +4,6 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 import org.congocc.templates.core.Environment;
@@ -12,7 +11,6 @@ import org.congocc.templates.core.ArithmeticEngine;
 import org.congocc.templates.core.nodes.generated.BuiltInExpression;
 import org.congocc.templates.core.nodes.generated.TemplateNode;
 import org.congocc.templates.core.variables.*;
-import org.congocc.templates.TemplateDateModel;
 import org.congocc.templates.TemplateHashModel;
 import org.congocc.templates.TemplateSequenceModel;
 import org.congocc.templates.utility.StringUtil;
@@ -26,7 +24,6 @@ public abstract class SequenceFunctions extends ExpressionEvaluatingBuiltIn {
 
     static final int KEY_TYPE_STRING = 1;
     static final int KEY_TYPE_NUMBER = 2;
-    static final int KEY_TYPE_DATE = 3;
 
 
     @Override
@@ -244,8 +241,6 @@ public abstract class SequenceFunctions extends ExpressionEvaluatingBuiltIn {
         int keyType;
         if (item instanceof Number) {
             keyType = KEY_TYPE_NUMBER;
-        } else if (isDate(item)) {
-            keyType = KEY_TYPE_DATE;
         } else {
             keyType = KEY_TYPE_STRING;
         } 
@@ -279,26 +274,6 @@ public abstract class SequenceFunctions extends ExpressionEvaluatingBuiltIn {
                                 + "was a number. "
                                 + "The value at index " + i
                                 + " is not number.");
-                    }
-                }
-            } else if (keyType == KEY_TYPE_DATE) {
-                for (i = 0; i < ln; i++) {
-                    item = seq.get(i);
-                    try {
-                        result.add(new KVP(((TemplateDateModel) item).getAsDate(),
-                                item));
-                    } catch (ClassCastException e) {
-                        if (!(item instanceof Number)) {
-                            throw new EvaluationException(
-                                    "sorting failed: " 
-                                    + "All values in the sequence must be "
-                                    + "date/time values, because the first "
-                                    + "value was a date/time. "
-                                    + "The value at index " + i
-                                    + " is not date/time.");
-                        } else {
-                            throw e;
-                        }
                     }
                 }
             } else {
@@ -358,20 +333,6 @@ public abstract class SequenceFunctions extends ExpressionEvaluatingBuiltIn {
                                     + "index " + i
                                     + " is not a number.");
                     }
-                } else if (keyType == KEY_TYPE_DATE) {
-                    try {
-                        result.add(new KVP(((TemplateDateModel) key).getAsDate(),
-                                item));
-                    } catch (ClassCastException e) {
-                        if (!(key instanceof TemplateDateModel)) {
-                            throw new EvaluationException(
-                                    "sorting failed: "
-                                    + "All key values in the sequence must be "
-                                    + "dates, because the first key "
-                                    + "value was a date. The key value at "
-                                    + "index " + i + " is not a date.");
-                        }
-                    }
                 } else {
                     throw new RuntimeException("FreeMarker bug: Bad key type");
                 }
@@ -385,8 +346,6 @@ public abstract class SequenceFunctions extends ExpressionEvaluatingBuiltIn {
         } else if (keyType == KEY_TYPE_NUMBER) {
             cmprtr = new NumericalKVPComparator(Environment
                     .getCurrentEnvironment().getArithmeticEngine());
-        } else if (keyType == KEY_TYPE_DATE) {
-            cmprtr = DateKVPComparator.INSTANCE;
         } else {
             throw new RuntimeException("FreeMarker bug: Bad key type");
         }
@@ -432,14 +391,6 @@ public abstract class SequenceFunctions extends ExpressionEvaluatingBuiltIn {
         public int compare(Object arg0, Object arg1) {
             return collator.compare(
                     ((KVP) arg0).key, ((KVP) arg1).key);
-        }
-    }
-
-    static class DateKVPComparator implements Comparator {
-        static final DateKVPComparator INSTANCE = new DateKVPComparator();
-        public int compare(Object arg0, Object arg1) {
-            return ((Date) ((KVP) arg0).key).compareTo(
-                    (Date) ((KVP) arg1).key);
         }
     }
 

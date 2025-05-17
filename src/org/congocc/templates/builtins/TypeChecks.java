@@ -25,9 +25,6 @@ public class TypeChecks extends ExpressionEvaluatingBuiltIn {
 		else if (builtInName == "is_number") {
 			result = value instanceof Number;
 		}
-		else if (builtInName == "is_date") {
-			result = isDate(value);
-		}
 		else if (builtInName == "is_enumerable" || builtInName == "is_collection") {
 			result = isIterable(value);
 		}

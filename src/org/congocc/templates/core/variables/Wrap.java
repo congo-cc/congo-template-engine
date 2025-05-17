@@ -5,7 +5,6 @@ import java.lang.reflect.Array;
 import org.congocc.templates.core.Environment;
 import org.congocc.templates.core.nodes.generated.Expression;
 import org.congocc.templates.TemplateBooleanModel;
-import org.congocc.templates.TemplateDateModel;
 import org.congocc.templates.TemplateException;
 import org.congocc.templates.TemplateSequenceModel;
 
@@ -33,8 +32,6 @@ public class Wrap {
             return null;
         }
     }
-
-    private static int defaultDateType = TemplateDateModel.UNKNOWN;
 
     private static final Class<?> RECORD_CLASS;
 
@@ -94,26 +91,6 @@ public class Wrap {
         return (List<?>) obj;
     }
 
-    public static boolean isDate(Object obj) {
-        if (obj instanceof TemplateDateModel) {
-            return true;
-        }
-        if (obj instanceof WrappedVariable) {
-            obj = ((WrappedVariable) obj).getWrappedObject();
-        }
-        if (obj instanceof Date) {
-            return true;
-        }
-        return false;
-    }
-
-    public static Date asDate(Object obj) {
-        if (obj instanceof TemplateDateModel) {
-            return ((TemplateDateModel) obj).getAsDate();
-        }
-        return (Date) obj;
-    }
-
     public static String asString(Object obj) {
         return obj.toString();
     }
@@ -162,28 +139,9 @@ public class Wrap {
         return ((Iterable<?>) obj).iterator();
     }
 
-    /**
-     * Sets the default date type to use for dates that result from
-     * a plain <tt>java.util.Date</tt> instead of <tt>java.sql.Date</tt> or
-     * <tt>java.sql.Time</tt> or <tt>java.sql.Timestamp</tt>. Default value is
-     * {@link TemplateDateModel#UNKNOWN}.
-     * 
-     * @param defaultDateType the new default date type.
-     */
-    public static synchronized void setDefaultDateType(int defaultDateType) {
-        Wrap.defaultDateType = defaultDateType;
-    }
-
-    static synchronized int getDefaultDateType() {
-        return defaultDateType;
-    }
-
     public static Object wrap(Object object) {
         if (object == null) {
             return JAVA_NULL;
-        }
-        if (object instanceof Date) {
-            return new DateWrapper((Date) object);
         }
         if (object instanceof ResourceBundle) {
             return new ResourceBundleWrapper((ResourceBundle) object);
@@ -205,15 +163,6 @@ public class Wrap {
             }
         }
         return object;
-    }
-
-    static public Date getDate(TemplateDateModel wrappedDate, Expression expr, Environment env)
-    {
-        Date value = wrappedDate.getAsDate();
-        if(value == null) {
-            throw new TemplateException(expr + " evaluated to null date.", env);
-        }
-        return value;
     }
 
     static public Number getNumber(Object object, Expression expr, Environment env)

@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.congocc.templates.TemplateBooleanModel;
-import org.congocc.templates.TemplateDateModel;
 
 import java.util.Date;
 import java.lang.reflect.Array;
@@ -306,10 +305,6 @@ public class ReflectionCode {
                 return new BigInteger(num.toString());
             }
             return CAN_NOT_UNWRAP;
-        }
-        if (desiredType == Date.class && object instanceof TemplateDateModel) {
-            // REVISIT
-            return ((TemplateDateModel) object).getAsDate();
         }
         if (desiredType == String.class) { 
             return object.toString();

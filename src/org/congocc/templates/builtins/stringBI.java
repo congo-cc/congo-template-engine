@@ -1,16 +1,12 @@
 package org.congocc.templates.builtins;
 
-import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.util.Date;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.congocc.templates.annotations.Parameters;
 import org.congocc.templates.core.Environment;
 import org.congocc.templates.core.nodes.generated.BuiltInExpression;
-import org.congocc.templates.core.variables.*;
-import org.congocc.templates.TemplateDateModel;
 import org.congocc.templates.TemplateHashModel;
 
 import static org.congocc.templates.core.variables.Wrap.*;
@@ -27,11 +23,6 @@ public class stringBI extends ExpressionEvaluatingBuiltIn {
     {
         if (model instanceof Number) {
             return new NumberFormatter((Number)model, env);
-        }
-        if (model instanceof TemplateDateModel) {
-            TemplateDateModel dm = (TemplateDateModel) model;
-            int dateType = dm.getDateType();
-            return new DateFormatter(Wrap.getDate(dm, caller.getTarget(), env), dateType, env);
         }
         if (isBoolean(model)) {
             return new BooleanFormatter(model, env);
@@ -62,35 +53,6 @@ public class stringBI extends ExpressionEvaluatingBuiltIn {
         }
     }
     
-    
-    static class DateFormatter implements TemplateHashModel, Function<String,Object> {
-        private final Date date;
-        private final int dateType;
-        private final Environment env;
-        private final DateFormat defaultFormat;
-
-        DateFormatter(Date date, int dateType, Environment env) {
-            this.date = date;
-            this.dateType = dateType;
-            this.env = env;
-            defaultFormat = env.getDateFormatObject(dateType);
-        }
-
-        public String toString() { 
-            if(dateType == TemplateDateModel.UNKNOWN) {
-                throw new EvaluationException("Can't convert the date to string, because it is not known which parts of the date variable are in use. Use ?date, ?time or ?datetime built-in, or ?string.<format> or ?string(format) built-in with this date.");
-            }
-            return defaultFormat.format(date);
-        }
-
-        public Object get(String key) {
-            return env.getDateFormatObject(dateType, key).format(date);
-        }
-        
-        public Object apply(String arg) {
-            return get(arg);
-        }
-    }
     
     static class NumberFormatter implements TemplateHashModel, Function<String,Object> {
         private final Number number;

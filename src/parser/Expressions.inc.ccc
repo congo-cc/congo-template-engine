@@ -12,7 +12,6 @@ INJECT Expression :
    import org.congocc.templates.core.Environment;
    import org.congocc.templates.core.variables.InvalidReferenceException;
    import org.congocc.templates.TemplateException;
-   import org.congocc.templates.TemplateDateModel;
    import org.congocc.templates.TemplateSequenceModel;
    import java.lang.reflect.Array;
    import static org.congocc.templates.core.variables.Wrap.*;
@@ -35,10 +34,6 @@ INJECT Expression :
         assertNonNull(referent, env);
         if (referent instanceof Number) {
             return env.formatNumber((Number)referent);
-        }
-        if (referent instanceof TemplateDateModel) {
-            TemplateDateModel dm = (TemplateDateModel) referent;
-            return env.formatDate(getDate(dm, this, env), dm.getDateType());
         }
         if (referent instanceof CharSequence) {
             return asString(referent);
@@ -1057,7 +1052,6 @@ INJECT BuiltInExpression :
     import java.util.HashMap;
     import org.congocc.templates.core.Environment;
     import org.congocc.templates.builtins.*;
-    import org.congocc.templates.TemplateDateModel;
     import org.congocc.templates.TemplateHashModel;
     import org.congocc.templates.core.variables.JavaMethodCall;
     import static org.congocc.templates.core.variables.Wrap.asString;
@@ -1108,7 +1102,6 @@ INJECT BuiltInExpression :
         TypeChecks typeChecks = new TypeChecks();
         knownBuiltins.put("is_boolean", typeChecks);
         knownBuiltins.put("is_collection", typeChecks);
-        knownBuiltins.put("is_date", typeChecks);
         knownBuiltins.put("is_enumerable", typeChecks);
         knownBuiltins.put("is_hash", typeChecks);
         knownBuiltins.put("is_hash_ex", typeChecks);
@@ -1146,9 +1139,6 @@ INJECT BuiltInExpression :
         knownBuiltins.put("namespace", new MacroBuiltins.Namespace());
         knownBuiltins.put("keys", new HashBuiltin.Keys());
         knownBuiltins.put("values", new HashBuiltin.Values());
-        knownBuiltins.put("date", new DateTime(TemplateDateModel.DATE));
-        knownBuiltins.put("time", new DateTime(TemplateDateModel.TIME));
-        knownBuiltins.put("datetime", new DateTime(TemplateDateModel.DATETIME));
         knownBuiltins.put("is_defined", new ExistenceBuiltIn.IsDefinedBuiltIn());
         knownBuiltins.put("default", new ExistenceBuiltIn.DefaultBuiltIn());
         knownBuiltins.put("has_content", new ExistenceBuiltIn.HasContentBuiltIn());
