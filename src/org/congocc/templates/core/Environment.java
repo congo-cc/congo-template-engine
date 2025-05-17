@@ -21,7 +21,6 @@ import org.congocc.templates.core.nodes.generated.PositionalArgsList;
 import org.congocc.templates.core.nodes.ParameterList;
 import org.congocc.templates.core.nodes.generated.TemplateElement;
 import org.congocc.templates.core.nodes.generated.UnifiedCall;
-import org.congocc.templates.log.Logger;
 import org.congocc.templates.core.variables.*;
 import org.congocc.templates.core.variables.scope.*;
 import org.congocc.templates.*;
@@ -52,9 +51,6 @@ import static org.congocc.templates.core.variables.Wrap.*;
 @SuppressWarnings("rawtypes")
 public final class Environment extends Configurable implements Scope {
     private static final ThreadLocal<Environment> threadEnv = new ThreadLocal<Environment>();
-
-    static final Logger logger = Logger.getLogger("org.congocc.templates.runtime");
-    private static final Logger attemptLogger = Logger.getLogger("org.congocc.templates.runtime.attempt");
 
     private static final Map<NumberFormatKey, NumberFormat> localizedNumberFormats = new HashMap<NumberFormatKey, NumberFormat>();
 
@@ -239,10 +235,6 @@ public final class Environment extends Configurable implements Scope {
             this.out = prevOut;
         }
         if (thrownException != null) {
-            if (attemptLogger.isDebugEnabled()) {
-                logger.debug("Error in attempt block " +
-                        attemptBlock.getLocation(), thrownException);
-            }
             try {
                 recoveredErrorStack.add(thrownException.getMessage());
                 render(recoveryBlock);
@@ -439,11 +431,6 @@ public final class Environment extends Configurable implements Scope {
             throw te;
         }
         lastThrowable = te;
-
-        // Log the exception
-        if (logger.isErrorEnabled()) {
-            logger.error(te.getMessage(), te);
-        }
 
         // An assertion failing is not passed to the handler, but
         // explicitly rethrown.

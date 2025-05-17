@@ -10,10 +10,8 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.congocc.templates.core.Environment;
-import org.congocc.templates.log.Logger;
 import org.congocc.templates.Configuration;
 import org.congocc.templates.Template;
-
 
 /**
  * A class that performs caching and on-demand loading of the templates.
@@ -34,7 +32,7 @@ public class TemplateCache
     private static final String PARENT_DIR_PATH_PREFIX = "../";
     private static final String PARENT_DIR_PATH = "/../";
     private static final char SLASH = '/';
-    private static final Logger logger = Logger.getLogger("org.congocc.templates.cache");
+//    private static final Logger logger = LoggerFactory.getLogger("org.congocc.templates.cache");
 
     private final TemplateLoader mainLoader;
     /** Here we keep our cached templates */
@@ -61,9 +59,10 @@ public class TemplateCache
     private static TemplateLoader createDefaultTemplateLoader() {
         try {
             return new FileTemplateLoader();
-        } catch(Exception e) {
-            logger.warn("Could not create a file template loader for current directory", e);
-            return null;
+        } catch(IOException e) {
+        //    logger.warn("Could not create a file template loader for current directory", e);
+        //    return null;
+            throw new RuntimeException(e);
         }
     }
     
@@ -193,8 +192,6 @@ public class TemplateCache
     private Template getTemplate(TemplateLoader loader, String name, Locale locale, String encoding, boolean parse)
     throws IOException
     {
-        boolean debug = logger.isDebugEnabled();
-        String debugName = debug ? name + "[" + locale + "," + encoding + (parse ? ",parsed] " : ",unparsed] ") : null;
         TemplateKey tk = new TemplateKey(name, locale, encoding, parse);
         CachedTemplate cachedTemplate;
         if(isStorageConcurrent) {
@@ -213,9 +210,6 @@ public class TemplateCache
             if (cachedTemplate != null) {
                 // If we're within the refresh delay, return the cached copy
                 if (now - cachedTemplate.lastChecked < delay) {
-                    if(debug) {
-                        logger.debug(debugName + "cached copy not yet stale; using cached.");
-                    }
                     // Can be null, indicating a cached negative lookup
                     Object t = cachedTemplate.templateOrException;
                     if(t instanceof Template || t == null) {
@@ -241,9 +235,6 @@ public class TemplateCache
 
                 // Template source was removed
                 if (newlyFoundSource == null) {
-                    if(debug) {
-                        logger.debug(debugName + "no source found.");
-                    } 
                     storeNegativeLookup(tk, cachedTemplate, null);
                     return null;
                 }
@@ -254,38 +245,15 @@ public class TemplateCache
                 boolean lastModifiedNotChanged = lastModified == cachedTemplate.lastModified;
                 boolean sourceEquals = newlyFoundSource.equals(cachedTemplate.source);
                 if(lastModifiedNotChanged && sourceEquals) {
-                    if(debug) {
-                        logger.debug(debugName + "using cached since " + 
-                                newlyFoundSource + " didn't change.");
-                    }
                     storeCached(tk, cachedTemplate);
                     return (Template)cachedTemplate.templateOrException;
                 }
                 else {
-                    if(debug && !sourceEquals) {
-                        logger.debug("Updating source, info for cause: " + 
-                            "sourceEquals=" + sourceEquals + 
-                            ", newlyFoundSource=" + newlyFoundSource + 
-                            ", cachedTemplate.source=" + cachedTemplate.source);
-                    }
-                    if(debug && !lastModifiedNotChanged) {
-                        logger.debug("Updating source, info for cause: " + 
-                            "lastModifiedNotChanged=" + lastModifiedNotChanged + 
-                            ", cache lastModified=" + cachedTemplate.lastModified + 
-                            " != file lastModified=" + lastModified);
-                    }
                     // Update the source
                     cachedTemplate.source = newlyFoundSource;
                 }
             }
             else {
-                if(debug) {
-                    logger.debug("Could not find template in cache, "
-                        + "creating new one; id=[" + 
-                        tk.name + "[" + tk.locale + "," + tk.encoding + 
-                        (tk.parse ? ",parsed] " : ",unparsed] ") + "]");
-                }
-                
                 // Construct a new CachedTemplate entry. Note we set the
                 // cachedTemplate.lastModified to Long.MIN_VALUE. This is
                 // a flag that signs it has to be explicitly queried later on.
@@ -298,10 +266,6 @@ public class TemplateCache
                 }
                 cachedTemplate.source = newlyFoundSource;
                 cachedTemplate.lastModified = lastModified = Long.MIN_VALUE;
-            }
-            if(debug) {
-                logger.debug("Compiling FreeMarker template " + 
-                    debugName + " from " + newlyFoundSource);
             }
             // If we get here, then we need to (re)load the template
             Object source = cachedTemplate.source;
@@ -539,12 +503,8 @@ public class TemplateCache
 
         StringBuilder buf = new StringBuilder(path.length()).append(basePath);
         int l = basePath.length();
-        boolean debug = logger.isDebugEnabled();
         for(;;) {
             String fullPath = buf.append(resourcePath).toString();
-            if(debug) {
-                logger.debug("Trying to find template source " + fullPath);
-            }
             Object templateSource = mainLoader.findTemplateSource(fullPath);
             if(templateSource != null) {
                 return templateSource;

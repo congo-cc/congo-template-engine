@@ -693,7 +693,6 @@ INJECT ImportDeclaration :
     import org.congocc.templates.TemplateException;
     import org.congocc.templates.core.Environment;
     import org.congocc.templates.core.variables.InvalidReferenceException;
-    import org.congocc.templates.log.Logger;
     implements TemplateElement
 {
     private String templatePath="";
@@ -735,7 +734,6 @@ INJECT ImportDeclaration :
         catch (ParseException pe) {
             String msg = "Error parsing imported template "
                         + templateNameString;
-            Logger.getLogger("org.congocc.tempaltes.runtime").error(msg, pe);
             throw new TemplateException(msg, pe, env);
         }
         catch (IOException ioe) {

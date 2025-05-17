@@ -11,7 +11,6 @@ import org.congocc.templates.core.Environment;
 import org.congocc.templates.core.variables.WrappedVariable;
 import org.congocc.templates.core.parser.ParseException;
 import org.congocc.templates.core.parser.ParsingProblemImpl;
-import org.congocc.templates.log.Logger;
 import org.congocc.templates.utility.HtmlEscape;
 import org.congocc.templates.utility.StandardCompress;
 import org.congocc.templates.utility.StringUtil;
@@ -40,7 +39,6 @@ import static org.congocc.templates.core.variables.Wrap.*;
 @SuppressWarnings("deprecation")
 public class Configuration extends Configurable {
 
-    private static final Logger logger = Logger.getLogger("org.congocc.templates.core.parser");
     private static Configuration defaultConfig = new Configuration();
     private boolean localizedLookup = true, legacySyntax;
     private TemplateCache cache;
@@ -286,15 +284,12 @@ public class Configuration extends Configurable {
         if (result == null) {
             throw new FileNotFoundException("Template " + name + " not found.");
         }
-        if (result.hasParsingProblems() && !tolerateParsingProblems) {
+        if (result.hasParsingProblems()) {
             for (ParsingProblemImpl pp : result.getParsingProblems()) {
-                logger.error(pp.getMessage());
-                //System.err.println(pp.getMessage());
+                System.err.println(pp.getMessage());
             }
-            throw new ParseException(result.getParsingProblems());
-        } else {
-            for (ParsingProblemImpl pp : result.getParsingProblems()) {
-                logger.warn(pp.getMessage());
+            if (!tolerateParsingProblems) {
+                throw new ParseException(result.getParsingProblems());
             }
         }
         return result;
