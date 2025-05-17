@@ -978,26 +978,6 @@ public final class Environment extends Configurable implements Scope {
         }
     }
 
-    /**
-     * @return the namespace URI registered for this prefix, or null. This is
-     *         based on the mappings registered in the current namespace.
-     */
-    public String getNamespaceForPrefix(String prefix) {
-        return getCurrentNamespace().getTemplate()
-                .getNamespaceForPrefix(prefix);
-    }
-
-    public String getPrefixForNamespace(String nsURI) {
-        return getCurrentNamespace().getTemplate().getPrefixForNamespace(nsURI);
-    }
-
-    /**
-     * @return the default node namespace for the current FTL namespace
-     */
-    public String getDefaultNS() {
-        return getCurrentNamespace().getTemplate().getDefaultNS();
-    }
-
     private static final class NumberFormatKey {
         private final String pattern;
 

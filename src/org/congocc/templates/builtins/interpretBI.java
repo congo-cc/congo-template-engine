@@ -51,7 +51,7 @@ public class interpretBI extends ExpressionEvaluatingBuiltIn {
         }
         Template parentTemplate = env.getTemplate();
         try {
-            Template template = new Template(parentTemplate.getName() + "$" + id, new StringReader(interpretString), parentTemplate.getConfiguration());
+            Template template = new Template(parentTemplate.getName() + "$" + id, interpretString, parentTemplate.getConfiguration(), parentTemplate.getEncoding());
             template.setLocale(env.getLocale());
             return new TemplateProcessorModel(template);
         }

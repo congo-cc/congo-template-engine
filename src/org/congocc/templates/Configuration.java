@@ -2,6 +2,8 @@ package org.congocc.templates;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.nio.file.Path;
 import java.nio.file.FileSystems;
@@ -83,7 +85,8 @@ public class Configuration extends Configurable {
      */
     public void setClassForTemplateLoading(Class<?> clazz, String pathPrefix) {
         this.classForTemplateLoading = clazz;
-        if (pathPrefix.startsWith("/")) pathPrefix = pathPrefix.substring(1);
+        char pathFirstChar = pathPrefix.charAt(0);
+        if (pathFirstChar == '\\' || pathFirstChar == '/') pathPrefix = pathPrefix.substring(1);
         this.pathPrefix = pathPrefix;
     }
 
@@ -165,8 +168,15 @@ public class Configuration extends Configurable {
             if (is == null) {
                 throw new IllegalArgumentException(pathPrefix + "/" + name);
             }
-            java.io.InputStreamReader reader = new java.io.InputStreamReader(is);
-            result = new Template(name, reader, this);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            
+            StringBuffer buf = new StringBuffer();
+            while (true) {
+                int ch = reader.read();
+                if (ch == -1) break;
+                buf.append((char) ch);
+            }
+            result = new Template(name, buf,this,"UTF-8");
         }
         if (result == null) {
             throw new FileNotFoundException("Template " + name + " not found.");
