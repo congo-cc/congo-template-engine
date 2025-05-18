@@ -46,9 +46,6 @@ import org.congocc.templates.core.parser.*;
  */
 
 public class Template extends Configurable {
-    public static final String DEFAULT_NAMESPACE_PREFIX = "D";
-    public static final String NO_NS_PREFIX = "N";
-
     private Block rootElement;
     private Map<String, Macro> macros = new HashMap<String, Macro>();
     private List<ImportDeclaration> imports = new ArrayList<>();
@@ -59,6 +56,10 @@ public class Template extends Configurable {
     
     private List<ParsingProblemImpl> parsingProblems = new ArrayList<>();
     private TemplateHeaderElement headerElement;
+
+    private long lastModified;
+
+
     
     /**
      * A prime constructor to which all other constructors should
@@ -68,6 +69,7 @@ public class Template extends Configurable {
     {
         super(cfg);
         this.name = name;
+        this.lastModified = System.currentTimeMillis();
     }
 	public Template(String name, CharSequence input, Configuration cfg,
 			String encoding) throws IOException 
@@ -262,6 +264,13 @@ public class Template extends Configurable {
         return imports;
     }
 
+    public long getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(long lastModified) {
+        this.lastModified = lastModified;
+    }
     
     static public class WrongEncodingException extends RuntimeException {
 

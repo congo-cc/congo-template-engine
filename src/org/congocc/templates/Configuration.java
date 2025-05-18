@@ -3,10 +3,9 @@ package org.congocc.templates;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.*;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.net.URL;
@@ -29,9 +28,7 @@ import static org.congocc.templates.core.variables.Wrap.*;
  * various configuration parameters with which the template engine is run, as well
  * as serves as a central template loading and caching point. Note that
  * this class uses a default strategy for loading 
- * and caching templates. You can plug in a replacement
- * template loading mechanism by using the {@link #setTemplateLoader(TemplateLoader)}
- * method.
+ * and caching templates. 
  */
 
 //@SuppressWarnings("deprecation")
@@ -48,8 +45,8 @@ public class Configuration extends Configurable {
     private boolean tolerateParsingProblems = false;
 
     private Class<?> classForTemplateLoading;
-    private String pathPrefix = "/";
-    private Path directoryForTemplateLoading;
+    private String pathPrefix = "";
+    private Path directoryForTemplateLoading = Paths.get(".");
 
     public Configuration() {
         loadBuiltInSharedVariables();
@@ -78,7 +75,7 @@ public class Configuration extends Configurable {
         directoryForTemplateLoading = FileSystems.getDefault().getPath(dir);
         if (!Files.isDirectory(directoryForTemplateLoading)) {
             directoryForTemplateLoading = null;
-//            throw new IllegalArgumentException("Directory " + dir + " is not a directory.");
+            throw new IllegalArgumentException("Directory " + dir + " is not a directory.");
         }
     }
 
@@ -88,8 +85,6 @@ public class Configuration extends Configurable {
      */
     public void setClassForTemplateLoading(Class<?> clazz, String pathPrefix) {
         this.classForTemplateLoading = clazz;
-        char pathFirstChar = pathPrefix.charAt(0);
-        if (pathFirstChar == '\\' || pathFirstChar == '/') pathPrefix = pathPrefix.substring(1);
         this.pathPrefix = pathPrefix;
     }
 
@@ -148,38 +143,43 @@ public class Configuration extends Configurable {
 
     /**
      * Retrieves a template specified by a name and locale, interpreted using
-     * the specified character encoding, either parsed or unparsed. For the
-     * exact semantics of parameters, see 
-     * {@link TemplateCache#getTemplate(String, Locale, String, boolean)}.
+     * the specified character encoding, either parsed or unparsed. 
      * @return the requested template.
      * @throws FileNotFoundException if the template could not be found.
      * @throws IOException if there was a problem loading the template.
-     * @throws ParseException (extends <code>IOException</code>) if the template is syntactically bad.
+     * @throws ParseException if the template is syntactically bad.
      */
     public Template getTemplate(String name, Locale locale, String encoding, boolean parse) throws IOException {
         Template result = null;
-        String content = null;
-        Path path = null;
+        URL url = null;
+        URLConnection connection = null;
+        InputStream rawStream = null;
         if (directoryForTemplateLoading != null) {
-            path = directoryForTemplateLoading.resolve(name);
-            byte[] bb = Files.readAllBytes(path);
-            content = new String(bb);
-            result = new Template(name, content, this, "UTF-8");
-        }
-        if (result == null) {
-            URL url = classForTemplateLoading.getResource("/" + pathPrefix + "/" + name);
-            URLConnection connection = url.openConnection();
-            InputStream rawStream = connection.getInputStream();
-            if (rawStream != null) {
-                byte[] bb = rawStream.readAllBytes();
-                rawStream.close();
-                content = new String(bb, defaultEncoding);
-                result = new Template(name, content, this, defaultEncoding);
+            Path path = directoryForTemplateLoading.resolve(name);
+            if (Files.exists(path)) {
+                url = path.toUri().toURL();
+                connection = url.openConnection();
+                if (connection != null) {
+                    rawStream = connection.getInputStream();
+                }
+            }
+        } 
+        if (rawStream == null && classForTemplateLoading !=null) {
+            url = classForTemplateLoading.getResource(pathPrefix + "/" + name);
+            if (url != null) {
+                connection = url.openConnection();
+                if (connection!= null) {
+                    rawStream = connection.getInputStream();
+                }
             }
         }
-        if (result == null) {
+        if (rawStream == null) {
             throw new FileNotFoundException("Template " + name + " not found.");
         }
+        byte[] bb = rawStream.readAllBytes();
+        rawStream.close();
+        String content = new String(bb, defaultEncoding);
+        result = new Template(name, content, this, defaultEncoding);
         if (result.hasParsingProblems()) {
             for (ParsingProblemImpl pp : result.getParsingProblems()) {
                 System.err.println(pp.getMessage());
