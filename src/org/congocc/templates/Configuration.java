@@ -2,12 +2,15 @@ package org.congocc.templates;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.nio.file.Path;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.net.URL;
+import java.net.URLConnection;
 
 import org.congocc.templates.core.Configurable;
 import org.congocc.templates.core.Environment;
@@ -163,20 +166,16 @@ public class Configuration extends Configurable {
             content = new String(bb);
             result = new Template(name, content, this, "UTF-8");
         }
-        if (content == null) {
-            java.io.InputStream is = classForTemplateLoading.getResourceAsStream("/" + pathPrefix + "/" + name);
-            if (is == null) {
-                throw new IllegalArgumentException(pathPrefix + "/" + name);
+        if (result == null) {
+            URL url = classForTemplateLoading.getResource("/" + pathPrefix + "/" + name);
+            URLConnection connection = url.openConnection();
+            InputStream rawStream = connection.getInputStream();
+            if (rawStream != null) {
+                byte[] bb = rawStream.readAllBytes();
+                rawStream.close();
+                content = new String(bb, defaultEncoding);
+                result = new Template(name, content, this, defaultEncoding);
             }
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            
-            StringBuffer buf = new StringBuffer();
-            while (true) {
-                int ch = reader.read();
-                if (ch == -1) break;
-                buf.append((char) ch);
-            }
-            result = new Template(name, buf,this,"UTF-8");
         }
         if (result == null) {
             throw new FileNotFoundException("Template " + name + " not found.");

@@ -568,16 +568,9 @@ INJECT StringLiteral :
     	String src = toString();
         if (src.length() >5 && (src.indexOf("${") >= 0)) {
             CTemplatesLexer token_source = new CTemplatesLexer("input", value, CTemplatesLexer.LexicalState.DEFAULT, getBeginLine(), getBeginColumn() +1);
-            //token_source.setOnlyTextOutput(true);
             CTemplatesParser parser = new CTemplatesParser(token_source);
             parser.setTemplate(getTemplate());
-            try {
-                interpolatedOutput = parser.TemplateText();
-            }
-            catch(ParseException e) {
-                e.setTemplateName(getTemplate().getName());
-                throw e;
-            }
+            interpolatedOutput = parser.TemplateText();
         }
     }
     

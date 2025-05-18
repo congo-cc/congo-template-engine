@@ -1059,11 +1059,6 @@ INJECT BuiltInExpression :
 {
     private static final HashMap<String, BuiltIn> knownBuiltins = new HashMap<String, BuiltIn>();
     {
-//        knownBuiltins.put("new", new newBI());
-//        knownBuiltins.put("sort_by", new SequenceFunctions.SortBy());
-//        knownBuiltins.put("seq_index_of", new SequenceFunctions.IndexOf());
-//        knownBuiltins.put("seq_last_index_of", new SequenceFunctions.LastIndexOf());
-//        knownBuiltins.put("if_exists", new ExistenceBuiltIn.IfExistsBuiltIn());
         knownBuiltins.put("source", (env,caller)->caller.getTarget().getSource());
         knownBuiltins.put("upper_case", (env,caller)->asString(caller.getTarget().evaluate(env)).toUpperCase(env.getLocale()));
         knownBuiltins.put("lower_case", (env,caller)->asString(caller.getTarget().evaluate(env)).toLowerCase(env.getLocale()));

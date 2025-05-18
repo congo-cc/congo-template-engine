@@ -74,18 +74,12 @@ public class Template extends Configurable {
     {
         this(name, cfg);
         this.encoding = encoding;
-        try {
-            this.strictVariableDeclaration = getConfiguration().getStrictVariableDefinition();
-            CTemplatesParser parser = new CTemplatesParser(this, input);
-            parser.setInputSource(getName());
-            this.rootElement = parser.Root();
-            PostParseVisitor ppv = new PostParseVisitor(this);
-            ppv.visit(this);
-        }
-        catch(ParseException e) {
-            e.setTemplateName(name);
-            throw e;
-        }
+        this.strictVariableDeclaration = getConfiguration().getStrictVariableDefinition();
+        CTemplatesParser parser = new CTemplatesParser(this, input);
+        parser.setInputSource(getName());
+        this.rootElement = parser.Root();
+        PostParseVisitor ppv = new PostParseVisitor(this);
+        ppv.visit(this);
 	}
 	
     /**

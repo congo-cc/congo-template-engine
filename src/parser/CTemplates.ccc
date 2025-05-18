@@ -124,7 +124,7 @@ INJECT ParseException  :
     import org.congocc.core.nodes.generated.TemplateNode;
 {
     int lineNumber, columnNumber;
-    String templateName;
+//    String templateName;
     public List<ParsingProblemImpl> problems;
 
     public ParseException(String message, int lineNumber, int columnNumber) {
@@ -137,7 +137,7 @@ INJECT ParseException  :
         this.problems = problems;
     }
 
-    public void setTemplateName(String templateName) {
-        this.templateName = templateName;
-    }
+//    public void setTemplateName(String templateName) {
+//        this.templateName = templateName;
+//    }
 }
