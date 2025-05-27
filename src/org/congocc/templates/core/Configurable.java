@@ -459,8 +459,7 @@ abstract public class Configurable {
                     }
                 } else {
                     setTemplateExceptionHandler(
-                            (TemplateExceptionHandler) Class.forName(value)
-                                    .newInstance());
+                            (TemplateExceptionHandler) Class.forName(value).getConstructor().newInstance());
                 }
             } else if (ARITHMETIC_ENGINE_KEY.equals(key)) {
                 if (value.indexOf('.') == -1) {
@@ -473,8 +472,7 @@ abstract public class Configurable {
                     }
                 } else {
                     setArithmeticEngine(
-                            (ArithmeticEngine) Class.forName(value)
-                                    .newInstance());
+                            (ArithmeticEngine) Class.forName(value).getConstructor().newInstance());
                 }
             } else if (BOOLEAN_FORMAT_KEY.equals(key)) {
                 setBooleanFormat(value);

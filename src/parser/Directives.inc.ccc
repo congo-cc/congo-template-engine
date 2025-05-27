@@ -264,7 +264,7 @@ INJECT IteratorBlock :
 }
 
 /**
- * Production used to break out of a loop or a switch block.
+ * Production used to break out of a loop.
  */
 BreakInstruction# :
     <BREAK>
@@ -1043,117 +1043,6 @@ INJECT NoParseBlock :
     }
 }    
 
-SwitchBlock :
-{ Token start, caseTok=null; }
-   start=<SWITCH>
-   Expression
-   <DIRECTIVE_END>
-   [IgnorableWhitespace]
-   (
-     (
-      <CASE>
-      {
-         if (lastConsumedToken.charAt(0) == '#' && start.charAt(0) == '#') {
-            if (lastConsumedToken.getBeginColumn() <= start.getBeginColumn()) {
-                String message = "Indentation issue. The #case on line " 
-                + lastConsumedToken.getBeginLine() + " should be offset from the #switch "
-                + "on line " + start.getBeginLine() + ".";
-                throw new ParseException(message, lastConsumedToken, parsingStack);
-            }
-            if (caseTok != null && caseTok.getBeginColumn() != lastConsumedToken.getBeginColumn()) {
-                String message = "Indentation issue. The #case on line " 
-                + lastConsumedToken.getBeginLine() + " should be indented the same as the #case "
-                + "on line " + caseTok.getBeginLine() + ".";
-                throw new ParseException(message, lastConsumedToken, parsingStack);
-            }
-            caseTok = lastConsumedToken;
-         }
-      }
-      Expression
-      <DIRECTIVE_END>
-      Block
-     )#CaseBlock
-   )*
-   [
-     (
-      <DEFAUL>
-      {
-         if (lastConsumedToken.charAt(0) == '#' && start.charAt(0) == '#') {
-            if (lastConsumedToken.getBeginColumn() <= start.getBeginColumn()) {
-                String message = "Indentation issue. The #default on line " 
-                + lastConsumedToken.getBeginLine() + " should be offset from the #switch "
-                + "on line " + start.getBeginLine() + ".";
-                throw new ParseException(message, lastConsumedToken, parsingStack);
-            }
-            if (caseTok != null && caseTok.getBeginColumn() != lastConsumedToken.getBeginColumn()) {
-                String message = "Indentation issue. The #default on line " 
-                + lastConsumedToken.getBeginLine() + " should be indented the same as the #case "
-                + "on line " + caseTok.getBeginLine() + ".";
-                throw new ParseException(message, lastConsumedToken, parsingStack);
-            }
-            caseTok = lastConsumedToken;
-         }
-      }
-      Block
-     )#CaseBlock
-   ]
-   CloseDirectiveBlock(start)
-;
-
-INJECT SwitchBlock : 
-    import java.io.IOException;
-    import org.congocc.templates.core.Environment;
-    import org.congocc.templates.core.BreakException;
-    import org.congocc.templates.TemplateException;
-    import static org.congocc.templates.core.variables.Wrap.*;
-    implements TemplateElement  
-{
-    public void execute(Environment env) throws IOException {
-        boolean foundMatch = false;
-        Object testValue = firstChildOfType(Expression.class).evaluate(env);
-        try {
-            for (CaseBlock cb : childrenOfType(CaseBlock.class)) {
-                if (foundMatch) {
-                    cb.execute(env);
-                }
-                else {
-                    Expression testExp = cb.getExpression();
-                    foundMatch = testExp == null || equals(env, testValue, cb.getExpression().evaluate(env));
-                    if (foundMatch) cb.execute(env);
-                }
-            }
-        } catch (BreakException be) {}
-    }
-
-    private boolean equals(Environment env, Object first, Object second) {
-        if (first instanceof Number && second instanceof Number) {
-            return ((Number)first).equals((Number)second);
-        }
-        if (first instanceof CharSequence && second instanceof CharSequence) {
-            return asString(first).equals(asString(second));
-        }
-        throw new TemplateException("Can only compare numbers and strings", env);
-    }
-}
-
-INJECT CaseBlock :
-    import java.io.IOException;
-    import org.congocc.templates.core.Environment;
-    implements TemplateElement  
-{
-    public Expression getExpression() {
-        return firstChildOfType(Expression.class);
-    }
-
-    public void execute(Environment env) throws IOException {
-        env.render(firstChildOfType(TemplateElement.class));
-    }
-
-    public String getDescription() {
-        return get(0).toString() + " block";
-    }
-}
-
 EscapeBlock :
 { Token start; }
     start=<ESCAPE>
@@ -1434,8 +1323,6 @@ TemplateElement#interface :
    UnifiedCall
    |
    NoParseBlock
-   |
-   SwitchBlock
    |
    PropertySetting
    |

@@ -186,24 +186,20 @@ class PostParseVisitor extends Node.Visitor {
 	void visit(BreakInstruction node) {
 		recurse(node);
 		Node parent = node;
-		while (parent != null && !(parent instanceof SwitchBlock) && !(parent instanceof IteratorBlock)) { 
+		while (parent != null && !(parent instanceof IteratorBlock)) { 
 			parent = parent.getParent();
 		}
 		if (parent == null) {
-			template.addParsingProblem(new ParsingProblemImpl("The break directive can only be used within a loop or a switch-case construct.", node));
+			template.addParsingProblem(new ParsingProblemImpl("The break directive can only be used within a loop.", node));
 		}
 	}
 	
 	void visit(ReturnInstruction node) {
 		recurse(node);
-		Node parent = node;
-		while (parent != null && !(parent instanceof Macro)) {
-			parent = parent.getParent();
-		}
-		if (parent == null) {
+		Macro macro = node.firstAncestorOfType(Macro.class);
+		if (macro == null) {
        		template.addParsingProblem(new ParsingProblemImpl("The return directive can only be used inside a function or macro.", node));
 		} else {
-			Macro macro = (Macro) parent;
 			if (!macro.isFunction() && node.size() > 2) {
 				template.addParsingProblem(new ParsingProblemImpl("Can only return a value from a function, not a macro", node));
 			}
