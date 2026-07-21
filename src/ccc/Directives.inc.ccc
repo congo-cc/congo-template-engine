@@ -227,16 +227,19 @@ BreakInstruction# :
 
 INJECT BreakInstruction :
     import org.congocc.templates.core.Environment;
-    import org.congocc.templates.core.BreakException;
     implements TemplateElement
 {
     public void execute(Environment env) {
-        throw BreakException.INSTANCE;
+        throw BREAK;
     }
 
     public String getDescription() {
         return "break" + " [" + getLocation() + "]";
     }
+
+    private static final BreakException BREAK = new BreakException();
+
+    public static final class BreakException extends RuntimeException {}
 }
 
 AssertionInstruction :
@@ -305,17 +308,20 @@ INJECT ReturnInstruction :
         env.setLastReturnValue(getReturnValue(env));
         if (nextSibling() != null) {
             // We need to jump out using an exception.
-            throw ReturnException.INSTANCE;
+            throw RETURN;
         }
         if (!(getParent() instanceof Macro || getParent().getParent() instanceof Macro)) {
             // Here also, we need to jump out using an exception.
-            throw ReturnException.INSTANCE;
+            throw RETURN;
         }
     }
 
     public String getDescription() {
         return "return" + " [" + getLocation() + "]";
     }
+
+    private static final ReturnException RETURN = new ReturnException();
+    public static final class ReturnException extends RuntimeException {}
 }
 
 StopInstruction# :

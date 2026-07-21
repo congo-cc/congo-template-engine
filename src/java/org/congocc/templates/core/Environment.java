@@ -17,6 +17,8 @@ import org.congocc.templates.core.nodes.generated.LoopBlock;
 import org.congocc.templates.core.nodes.generated.Macro;
 import org.congocc.templates.core.nodes.generated.NestedInstruction;
 import org.congocc.templates.core.nodes.generated.PositionalArgsList;
+import org.congocc.templates.core.nodes.generated.BreakInstruction.BreakException;
+import org.congocc.templates.core.nodes.generated.ReturnInstruction.ReturnException;
 import org.congocc.templates.core.nodes.ParameterList;
 import org.congocc.templates.core.nodes.generated.TemplateElement;
 import org.congocc.templates.core.scopes.*;
