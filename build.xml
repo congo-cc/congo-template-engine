@@ -1,4 +1,4 @@
-<project name="congocc" default="jar" basedir=".">
+<project name="congo-templates" default="jar">
     <target name="init">
         <uptodate property="parser.uptodate"
             targetfile="build/generated-java/org/congocc/templates/core/parser/CTLParser.java">
@@ -16,7 +16,7 @@
             <assertions>
                 <enable />
             </assertions>
-            <arg line="-n -d build src/ccc/CTL.ccc" />
+            <arg line="-n -q -d build src/ccc/CTL.ccc" />
         </java>
     </target>
 
