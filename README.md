@@ -1,7 +1,5 @@
 # The Congo Template Engine
-The Congo Template Engine is a more evolved version of the well known [Apache FreeMarker](https://freemarker.apache.org/) by the original author. This branch of development is taking place outside the Apache Software Foundation. The [Congo Parser generator](https://parsers.org/) uses it internally to generate code in Java, Python, CSharp, and Rust.
 
-Note that the actual source code of the template engine is in the [`congo-parser-generator` repository](https://github.com/congo-cc/congo-parser-generator).
-See [here](https://github.com/congo-cc/congo-parser-generator/tree/master/examples/congo-templates) and [here](https://github.com/congo-cc/congo-parser-generator/tree/master/src/java/org/congocc/templates).
+The Congo Template Engine is a more evolved version of the well known [Apache FreeMarker](https://freemarker.apache.org/) by the original author. This branch of development is taking place outside the Apache Software Foundation. The [Congo Parser generator](https://github.com/congo-cc/congo-parser-generator) uses it internally to generate code in Java, Python, CSharp, and Rust.
 
-This Github repository will be used for ancillary material, as well as Discussions/Wiki.
+You can simply type 'ant' from the top-level directory to build the project. There is some additional documentation available in the [wiki](https://github.com/congo-cc/congo-parser-generator/wiki).
