@@ -81,7 +81,6 @@ public interface Extension {
     static class Inner {
         private static Map<String, Extension> knownExtensions = new ConcurrentHashMap<>();
         static {
-            register("Number", new numberBI());
             register("URL", new StringFunctions.Url());
             register("Scope", new MacroBuiltins.Scope());
             register("Namespace", new MacroBuiltins.Namespace());
