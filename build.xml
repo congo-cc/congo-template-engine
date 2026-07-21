@@ -1,0 +1,46 @@
+<project name="congocc" default="jar" basedir=".">
+    <target name="init">
+        <uptodate property="parser.uptodate"
+            targetfile="build/generated-java/org/congocc/templates/core/parser/CTLParser.java">
+            <srcfiles dir="examples/congo-templates" includes="*.ccc" />
+        </uptodate>
+    </target>
+
+    <target name="clean">
+        <delete file="congo-templates.jar" />
+        <delete dir="build" />
+    </target>
+
+    <target name="build-parser" depends="init" unless="parser.uptodate">
+        <java fork="true" jar="bootstrap/congocc.jar" failonerror="true">
+            <assertions>
+                <enable />
+            </assertions>
+            <arg line="-n -d build src/ccc/CTL.ccc" />
+        </java>
+    </target>
+
+    <target name="compile" depends="build-parser">
+        <javac destdir="build"
+            deprecation="off"
+            debug="on"
+            optimize="off"
+            failonerror="true"
+            includeantruntime="false"
+            release="17">
+            <src path="src/java" />
+            <src path="build/generated-java" />
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile">
+        <jar jarfile="congo-templates.jar"
+            basedir="build"
+            compress="true"
+            includes="org/congocc/templates/**/*.class">
+            <manifest>
+                <attribute name="Main-Class" value="org.congocc.templates.cli.CommandLine" />
+            </manifest>
+        </jar>
+    </target>
+</project>
