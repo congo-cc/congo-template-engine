@@ -2,7 +2,7 @@
     <target name="init">
         <uptodate property="parser.uptodate"
             targetfile="build/generated-java/org/congocc/templates/core/parser/CTLParser.java">
-            <srcfiles dir="src/ccc/congo-templates" includes="*.ccc" />
+            <srcfiles dir="src/ccc" includes="*.ccc" />
         </uptodate>
     </target>
 
