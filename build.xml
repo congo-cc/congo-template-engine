@@ -34,10 +34,11 @@
     </target>
 
     <target name="jar" depends="compile">
+        <copy file="LICENSE" todir="build"/>
         <jar jarfile="congo-templates.jar"
             basedir="build"
             compress="true"
-            includes="org/congocc/templates/**/*.class">
+            includes="org/congocc/templates/**/*.class,LICENSE">
             <manifest>
                 <attribute name="Main-Class" value="org.congocc.templates.cli.CommandLine" />
             </manifest>
