@@ -1,3 +1,9 @@
 *.class
 congo-templates.jar
 /build/*
+
+# My (revusky) VSCode workspace. If you use
+# VSCode yourself, just copy workspace.code-workspace
+# to personal.code-workspace and use that.
+
+personal.code-workspace
