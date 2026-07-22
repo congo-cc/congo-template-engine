@@ -294,7 +294,6 @@ ReturnInstruction :
 
 INJECT ReturnInstruction :
     import org.congocc.templates.core.Environment;
-    import org.congocc.templates.core.ReturnException;
     implements TemplateElement
 {
     public Object getReturnValue(Environment env) {
