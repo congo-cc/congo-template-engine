@@ -3,13 +3,13 @@ package org.congocc.templates.extensions;
 import org.congocc.templates.core.Environment;
 import org.congocc.templates.core.EvaluationException;
 import org.congocc.templates.core.nodes.generated.DotExpression;
+import org.congocc.templates.core.nodes.generated.Macro;
 import org.congocc.templates.core.parser.CTLLexer;
 import org.congocc.templates.core.parser.CTLParser;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.lang.reflect.Array;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.ArrayList;
@@ -85,8 +85,20 @@ public interface Extension {
         private static Map<String, Extension> knownExtensions = new ConcurrentHashMap<>();
         static {
             register("URLEncode", Inner::URLEncode);
-            register("Scope", new MacroBuiltins.Scope());
-            register("Namespace", new MacroBuiltins.Namespace());
+            register("Scope", (caller,env) -> {
+                Object obj = caller.lhs().evaluate(env);
+                if (obj instanceof Macro m) {
+                    return env.getMacroContext(m);
+                }
+                throw new EvaluationException("Expecting macro");
+            });
+            register("Namespace", (caller,env) -> {
+                Object obj = caller.lhs().evaluate(env);
+                if (obj instanceof Macro m) {
+                    return env.getMacroNamespace(m);
+                }
+                throw new EvaluationException("Expecting macro");
+            });
             register("Source", (caller, env) -> caller.lhs().getSource());
             register("CapFirst", Inner::CapFirst);
             register("UncapFirst", Inner::UncapFirst);
