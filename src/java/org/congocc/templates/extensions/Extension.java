@@ -5,8 +5,11 @@ import org.congocc.templates.core.EvaluationException;
 import org.congocc.templates.core.nodes.generated.DotExpression;
 import org.congocc.templates.core.parser.CTLLexer;
 import org.congocc.templates.core.parser.CTLParser;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.lang.reflect.Array;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.ArrayList;
@@ -81,7 +84,7 @@ public interface Extension {
     static class Inner {
         private static Map<String, Extension> knownExtensions = new ConcurrentHashMap<>();
         static {
-            register("URL", new StringFunctions.Url());
+            register("URLEncode", Inner::URLEncode);
             register("Scope", new MacroBuiltins.Scope());
             register("Namespace", new MacroBuiltins.Namespace());
             register("Source", (caller, env) -> caller.lhs().getSource());
@@ -339,6 +342,14 @@ public interface Extension {
             if (arg instanceof CharSequence) {
                 String s = arg.toString();
                 return StringUtil.RTFEnc(s);
+            }
+            throw new EvaluationException("Expecting a string");
+        }
+
+        private static String URLEncode(Object arg) {
+            if (arg instanceof CharSequence) {
+                String s = arg.toString();
+                return URLEncoder.encode(s, UTF_8);
             }
             throw new EvaluationException("Expecting a string");
         }
