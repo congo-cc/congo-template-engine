@@ -1,6 +1,7 @@
 package org.congocc.templates.core.reflection;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.RecordComponent;
 import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -188,15 +189,20 @@ public class ReflectionCode {
         if (cachedMethod != null) {
             return cachedMethod;
         }
-        if (object instanceof Record) {
-            try {
-                Method m = object.getClass().getMethod(name);
-                if (m.getReturnType() != Void.TYPE) {
-                    getterCache.put(lookupKey, m);
-                    m.setAccessible(true);
-                    return m;
+        RecordComponent[] rcs = object == null ? null : object.getClass().getRecordComponents();
+        if (rcs != null) {
+            for (RecordComponent rc : rcs) {
+                if (rc.getName().equals(name)) {
+                    try {
+                        Method m = object.getClass().getMethod(name);
+                        getterCache.put(lookupKey, m);
+                        m.setAccessible(true);
+                        return m;
+                    } catch (NoSuchMethodException e) {
+                        // This looks to be impossible.
+                        // The method must exist!
+                    }
                 }
-            } catch (NoSuchMethodException nsme) {
             }
         }
         String methodName = "get";
@@ -221,7 +227,7 @@ public class ReflectionCode {
             try {
                 Method m = object.getClass().getMethod(methodName);
                 if (m.getReturnType() == Boolean.TYPE || m.getReturnType() == Boolean.class) {
-                    getterCache.put(LookupKey.create(object, name, null), m);
+                    getterCache.put(lookupKey, m);
                     m.setAccessible(true);
                     return m;
                 }
