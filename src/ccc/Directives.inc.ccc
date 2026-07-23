@@ -2,6 +2,18 @@
 // template elements. It is INCLUDEd
 // from the main template.
 
+REQUIRE_TOKEN_DECLARATION;
+
+CONTEXTUAL :
+   <IN : 'in'>
+   |
+   <AS : 'as'>
+   |
+   <WHILE : 'while'>
+   |
+   <UNTIL : 'until'>
+;
+
 /**
  * A production representing the ${...}
  * that outputs a variable.

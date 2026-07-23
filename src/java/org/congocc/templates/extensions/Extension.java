@@ -100,8 +100,6 @@ public interface Extension {
                 throw new EvaluationException("Expecting macro");
             });
             register("Source", (caller, env) -> caller.lhs().getSource());
-            register("CapFirst", Inner::CapFirst);
-            register("UncapFirst", Inner::UncapFirst);
             register("Reverse", Inner::Reverse);
             register("First", Inner::First);
             register("Last", Inner::Last);
@@ -260,37 +258,6 @@ public interface Extension {
             if (arg instanceof CharSequence) {
                 String s = arg.toString();
                 return StringUtil.chomp(s);
-            }
-            throw new EvaluationException("Expecting a string");
-        }
-
-        private static String CapFirst(Object arg) {
-            return capUncapFirst(arg, true);
-        }
-
-        private static String UncapFirst(Object arg) {
-            return capUncapFirst(arg, false);
-        }
-
-        private static String capUncapFirst(Object arg, boolean cap) {
-            if (arg instanceof CharSequence) {
-                String s = arg.toString();
-                boolean justcopy = false;
-                StringBuilder buf = new StringBuilder();
-                for (int i = 0; i < s.length(); i++) {
-                    char ch = s.charAt(i);
-                    if (justcopy) {
-                        buf.append(ch);
-                        continue;
-                    }
-                    if (!Character.isWhitespace(ch)) {
-                        if (cap) ch = Character.toUpperCase(ch);
-                        else ch = Character.toLowerCase(ch);
-                        justcopy = true;
-                    }
-                    buf.append(ch);
-                }
-                return buf.toString();
             }
             throw new EvaluationException("Expecting a string");
         }

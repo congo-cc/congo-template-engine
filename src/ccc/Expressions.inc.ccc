@@ -2,6 +2,7 @@
 // grammar. It is INCLUDEd from the main template.
 
 DEFAULT_LEXICAL_STATE=EXPRESSION;
+REQUIRE_TOKEN_DECLARATION;
 
 #Expression#interface :
     TernaryExpression
