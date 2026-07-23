@@ -1159,7 +1159,6 @@ TextElement# :
 
 INJECT TextElement :
    import org.congocc.templates.core.Environment;
-   import org.congocc.templates.core.nodes.Whitespace;
    import org.congocc.templates.core.nodes.AssignmentInstruction;
    implements TemplateElement
 {
