@@ -1,6 +1,6 @@
 <project name="congo-templates" default="jar">
     <target name="init">
-        <uptodate property="parser.uptodate"
+        <uptodate property="ctl.parser.uptodate"
             targetfile="build/generated-java/org/congocc/templates/core/parser/CTLParser.java">
             <srcfiles dir="src/ccc" includes="*.ccc" />
         </uptodate>
@@ -11,7 +11,7 @@
         <delete dir="build" />
     </target>
 
-    <target name="build-parser" depends="init" unless="parser.uptodate">
+    <target name="build-parser" depends="init" unless="ctl.parser.uptodate">
         <java fork="true" jar="bootstrap/congocc.jar" failonerror="true">
             <assertions>
                 <enable />

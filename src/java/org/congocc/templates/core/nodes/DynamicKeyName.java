@@ -33,9 +33,7 @@ public class DynamicKeyName extends TemplateNode implements Expression {
             return dealWithRangeKey(leftSide, re, env);
         }
         Object key = getNameExpression().evaluate(env);
-        if (key == null) {
-            assertNonNull(key, getNameExpression());
-        }
+        assertIsDefined(key, getNameExpression());
         if (key instanceof Number n) {
             return dealWithNumericalKey(leftSide, n.intValue(), env);
         }
