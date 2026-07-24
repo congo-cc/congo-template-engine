@@ -1,7 +1,7 @@
 package org.congocc.templates.core.scopes;
 
 import java.util.HashMap;
-import org.congocc.templates.core.nodes.generated.Block;
+import org.congocc.templates.core.nodes.Block;
 import org.congocc.templates.*;
 
 public class BlockScope extends HashMap<String,Object> implements Scope {

@@ -4,9 +4,9 @@ import static org.congocc.templates.core.Wrap.*;
 
 import org.congocc.templates.core.Environment;
 import org.congocc.templates.core.reflection.ReflectionCode;
-import org.congocc.templates.core.nodes.generated.Expression;
-import org.congocc.templates.core.nodes.generated.RangeExpression;
-import org.congocc.templates.core.nodes.generated.TemplateNode;
+import org.congocc.templates.core.nodes.Expression;
+import org.congocc.templates.core.nodes.RangeExpression;
+import org.congocc.templates.core.nodes.TemplateNode;
 import org.congocc.templates.TemplateException;
 
 import java.util.Map;

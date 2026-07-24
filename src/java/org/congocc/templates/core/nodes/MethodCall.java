@@ -13,7 +13,7 @@ import java.util.function.Function;
 import java.util.function.BiFunction;
 import java.util.List;
 import java.util.ArrayList;
-import org.congocc.templates.core.nodes.generated.*;
+import org.congocc.templates.core.nodes.*;
 
 public class MethodCall extends TemplateNode implements Expression {
 

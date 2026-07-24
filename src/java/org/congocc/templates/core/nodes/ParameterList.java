@@ -2,7 +2,6 @@ package org.congocc.templates.core.nodes;
 
 import org.congocc.templates.TemplateException;
 import org.congocc.templates.core.Environment;
-import org.congocc.templates.core.nodes.generated.*;
 import java.util.*;
 
 public class ParameterList extends TemplateNode {

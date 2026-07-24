@@ -1,8 +1,8 @@
 package org.congocc.templates.core.scopes;
 
 import org.congocc.templates.core.Environment;
-import org.congocc.templates.core.nodes.generated.Block;
-import org.congocc.templates.core.nodes.generated.Macro;
+import org.congocc.templates.core.nodes.Block;
+import org.congocc.templates.core.nodes.Macro;
 import org.congocc.templates.core.nodes.ParameterList;
 
 /**

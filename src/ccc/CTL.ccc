@@ -1,7 +1,7 @@
 BASE_SRC_DIR="../../build/generated-java";
 BASE_NAME="CTL";
 PARSER_PACKAGE=org.congocc.templates.core.parser;
-NODE_PACKAGE=org.congocc.templates.core.nodes.generated;
+NODE_PACKAGE=org.congocc.templates.core.nodes;
 BASE_NODE_CLASS=TemplateNode;
 PRESERVE_TABS;
 EXTRA_TOKENS=DIRECTIVE_END;
@@ -18,7 +18,7 @@ INJECT Node :
    import org.congocc.templates.core.Environment;
    import org.congocc.templates.core.InvalidReferenceException;
    import org.congocc.templates.core.EvaluationUtil;
-   import org.congocc.templates.core.nodes.generated.Expression;
+   import org.congocc.templates.core.nodes.Expression;
 {
     void setTemplate(Template template);
     Template getTemplate();
@@ -45,7 +45,7 @@ INJECT BASE_NODE_CLASS :
    import org.congocc.templates.*;
    import org.congocc.templates.core.Environment;
    import org.congocc.templates.core.parser.Token;
-   import org.congocc.templates.core.nodes.generated.Expression;
+   import org.congocc.templates.core.nodes.Expression;
    import static org.congocc.templates.core.Wrap.assertNonNull;
 {
 	@Property Template template;
@@ -124,7 +124,7 @@ INJECT PARSER_CLASS :
 }
 
 INJECT ParseException  :
-    import org.congocc.core.nodes.generated.TemplateNode;
+    import org.congocc.core.nodes.TemplateNode;
 {
     int lineNumber, columnNumber;
     public List<ParsingProblemImpl> problems;

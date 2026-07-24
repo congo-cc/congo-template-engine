@@ -4,7 +4,7 @@ import java.util.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 
-import org.congocc.templates.core.nodes.generated.Expression;
+import org.congocc.templates.core.nodes.Expression;
 import org.congocc.templates.core.parser.Node;
 import org.congocc.templates.core.reflection.ReflectionCode;
 import org.congocc.templates.TemplateException;

@@ -2,8 +2,8 @@ package org.congocc.templates.extensions;
 
 import org.congocc.templates.core.Environment;
 import org.congocc.templates.core.EvaluationException;
-import org.congocc.templates.core.nodes.generated.DotExpression;
-import org.congocc.templates.core.nodes.generated.Macro;
+import org.congocc.templates.core.nodes.DotExpression;
+import org.congocc.templates.core.nodes.Macro;
 import org.congocc.templates.core.parser.CTLLexer;
 import org.congocc.templates.core.parser.CTLParser;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -34,7 +34,7 @@ public interface Extension {
      * @return the Extension of the given name
      */
     static Extension find(String name) {
-        return Inner.knownExtensions.get(name);
+        return Impl.knownExtensions.get(name);
     }
 
     /**
@@ -44,7 +44,7 @@ public interface Extension {
      * to use in most cases.
      */
     static void register(String name, Extension ext) {
-        Inner.knownExtensions.put(name, ext);
+        Impl.knownExtensions.put(name, ext);
     }
 
     /**
@@ -64,11 +64,11 @@ public interface Extension {
      * @param name the name of the extension to be removed.
      */
     static void remove(String name) {
-        Inner.knownExtensions.remove(name);
+        Impl.knownExtensions.remove(name);
     }
 
     static boolean isExtension(String name) {
-        return Inner.knownExtensions.get(name) != null;
+        return Impl.knownExtensions.get(name) != null;
     }
 
     static void alias(String altName, String existingName) {
@@ -81,10 +81,10 @@ public interface Extension {
 
     // Using inner class because you can't put a static initializer
     // in an interface
-    static class Inner {
+    static class Impl {
         private static Map<String, Extension> knownExtensions = new ConcurrentHashMap<>();
         static {
-            register("URLEncode", Inner::URLEncode);
+            register("URLEncode", Impl::URLEncode);
             register("Scope", (caller,env) -> {
                 Object obj = caller.lhs().evaluate(env);
                 if (obj instanceof Macro m) {
@@ -100,30 +100,30 @@ public interface Extension {
                 throw new EvaluationException("Expecting macro");
             });
             register("Source", (caller, env) -> caller.lhs().getSource());
-            register("Reverse", Inner::Reverse);
-            register("First", Inner::First);
-            register("Last", Inner::Last);
-            register("Size", Inner::Size);
-            register("Keys", Inner::Keys);
-            register("Values", Inner::Values);
-            register("Capitalize", Inner::Capitalize);
-            register("Chomp", Inner::Chomp);
-            register("WordList", Inner::WordList);
-            register("JavaStringEncode", Inner::JavaStringEncode);
-            register("JavaScriptStringEncode", Inner::JavaScriptStringEncode);
-            register("HTML", Inner::HTMLEncode);
-            register("XML", Inner::XMLEncode);
-            register("XHTML", Inner::XHTMLEncode);
-            register("RTF", Inner::RTFEncode);
-            register("Eval", Inner::Eval);
-            register("C", Inner::C);
-            register("byte", Inner::byteCast);
-            register("double", Inner::doubleCast);
-            register("float", Inner::floatCast);
-            register("int", Inner::intCast);
-            register("long", Inner::longCast);
-            register("short", Inner::shortCast);
-            register("instanceof", Inner::IsInstance);
+            register("Reverse", Impl::Reverse);
+            register("First", Impl::First);
+            register("Last", Impl::Last);
+            register("Size", Impl::Size);
+            register("Keys", Impl::Keys);
+            register("Values", Impl::Values);
+            register("Capitalize", Impl::Capitalize);
+            register("Chomp", Impl::Chomp);
+            register("WordList", Impl::WordList);
+            register("JavaStringEncode", Impl::JavaStringEncode);
+            register("JavaScriptStringEncode", Impl::JavaScriptStringEncode);
+            register("HTML", Impl::HTMLEncode);
+            register("XML", Impl::XMLEncode);
+            register("XHTML", Impl::XHTMLEncode);
+            register("RTF", Impl::RTFEncode);
+            register("Eval", Impl::Eval);
+            register("C", Impl::C);
+            register("byte", Impl::byteCast);
+            register("double", Impl::doubleCast);
+            register("float", Impl::floatCast);
+            register("int", Impl::intCast);
+            register("long", Impl::longCast);
+            register("short", Impl::shortCast);
+            register("instanceof", Impl::IsInstance);
             alias("InstanceOf", "instanceof");
             alias("Websafe", "HTML");
             alias("Int", "int");

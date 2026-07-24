@@ -1,6 +1,6 @@
 package org.congocc.templates;
 
-import org.congocc.templates.core.nodes.generated.*;
+import org.congocc.templates.core.nodes.*;
 import org.congocc.templates.core.parser.Node;
 import org.congocc.templates.core.parser.ParseException;
 import org.congocc.templates.core.parser.ParsingProblemImpl;

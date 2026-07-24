@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.congocc.templates.core.Environment;
-import org.congocc.templates.core.nodes.generated.UnifiedCall;
-import org.congocc.templates.core.nodes.generated.IncludeInstruction;
-import org.congocc.templates.core.nodes.generated.TemplateElement;
+import org.congocc.templates.core.nodes.UnifiedCall;
+import org.congocc.templates.core.nodes.IncludeInstruction;
+import org.congocc.templates.core.nodes.TemplateElement;
 
 /**
  * The template classes usually use this exception and its descendants to
